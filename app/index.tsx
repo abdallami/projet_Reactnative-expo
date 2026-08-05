@@ -7,5 +7,5 @@ export default function Index() {
   if (!isLoaded) return null;
   // si utilusateur est connecteredirection apres l'authentification
   if (isSignedIn) return <Redirect href="/(root)/(tabs)" />;
-  return <Redirect href="/sign-up" />;
+  return <Redirect href="/sign-in" />;
 }

@@ -31,6 +31,8 @@ export default function Signup() {
   if (signUp.status === "complete" || isSignedIn) {
     return null;
   }
+  //fonction de deconnexion
+
   //la fonction pour s'inscrire
   const onSingnUpPress = async () => {
     const { error } = await signUp.password({
@@ -201,7 +203,7 @@ export default function Signup() {
             <Text className="text-blue-600 font-semibold">Connectez-vous</Text>
           </Link>
         </View>
-        <View nativeID="crek-captcha" />
+        <View nativeID="clerk-captcha" />
       </View>
     </ScrollView>
   );
