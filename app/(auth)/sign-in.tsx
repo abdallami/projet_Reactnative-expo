@@ -37,8 +37,6 @@ export default function SignIn() {
       await signIn.mfa.sendEmailCode();
     } else if (factor.strategy === "phone_code") {
       await signIn.mfa.sendPhoneCode();
-    } else if (factor.strategy === "email_link") {
-      await signIn.mfa.sendEmailLink();
     }
   };
 

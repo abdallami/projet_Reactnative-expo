@@ -199,7 +199,7 @@ export default function Signup() {
         </TouchableOpacity>
         <View className="flex-row justify-center items-center gap-2">
           <Text className="text-gray-500">Avez-vous un compte?</Text>
-          <Link href="/sign-in ">
+          <Link href="/sign-in">
             <Text className="text-blue-600 font-semibold">Connectez-vous</Text>
           </Link>
         </View>
