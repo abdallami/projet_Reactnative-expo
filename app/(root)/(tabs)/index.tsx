@@ -1,6 +1,6 @@
 import FeaturedCard from "@/components/featuredCard";
 import PropertyCard from "@/components/PropertyCard";
-import { supabase } from "@/lib/supabase";
+import { useSupabase } from "@/hooks/useSupabase";
 import { Property } from "@/types";
 import { useUser } from "@clerk/expo";
 import { Ionicons } from "@expo/vector-icons";
@@ -19,41 +19,42 @@ import { SafeAreaView } from "react-native-safe-area-context";
 export default function HomeScreen() {
   const { user } = useUser();
   const router = useRouter();
+  const supabase = useSupabase();
 
   const [featured, setFeatured] = useState<Property[]>([]);
   const [recommended, setRecommended] = useState<Property[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const hasLoadedRef = React.useRef(false);
 
-  const fetchProperies = async () => {
-    setLoading(true);
-    const { data: featuredData, error: featuredError } = await supabase
+  const fetchProperties = useCallback(async () => {
+    if (!hasLoadedRef.current) setInitialLoading(true);
+
+    const { data, error } = await supabase
       .from("properties")
       .select("*")
-      .eq("is_featured", true)
       .order("created_at", { ascending: false });
 
-    const { data: recommendedData, error: recommendedError } = await supabase
-      .from("properties")
-      .select("*")
-      .eq("is_featured", false)
-      .order("created_at", { ascending: false });
+    if (error) {
+      console.error("Properties error:", error);
+      setInitialLoading(false);
+      return;
+    }
 
-    if (featuredError) console.error("Featured error:", featuredError);
-    if (recommendedError) console.error("Recommended error:", recommendedError);
+    const properties = data ?? [];
+    setFeatured(properties.filter((property) => property.is_featured === true));
+    setRecommended(
+      properties.filter((property) => property.is_featured !== true),
+    );
+    hasLoadedRef.current = true;
+    setInitialLoading(false);
+  }, [supabase]);
 
-    console.log("Featured:", featuredData);
-    console.log("Recommended:", recommendedData);
-
-    setFeatured(featuredData ?? []);
-    setRecommended(recommendedData ?? []);
-    setLoading(false);
-  };
-  //pour reperer
   useFocusEffect(
     useCallback(() => {
-      fetchProperies();
-    }, []),
+      void fetchProperties();
+    }, [fetchProperties]),
   );
+
   return (
     <SafeAreaView className="flex-1">
       <FlatList
@@ -71,16 +72,15 @@ export default function HomeScreen() {
                 resizeMode="contain"
               />
               <View className="items-end">
-                <Text> Good Morning</Text>
+                <Text>Bonjour</Text>
                 <Text className="text-gray-900 text-base font-bold">
-                  {user?.firstName ?? "User"}
+                  {user?.firstName ?? "Utilisateur"}
                 </Text>
               </View>
             </View>
 
             {/* search bar*/}
-            <TouchableOpacity
-              onPress={() => router.push("/(root)/(tabs)/search")}
+            <View
               className="mx-5 mb-6 flex-row items-center bg-white rounded-2xl px-4 py-3 gap-3"
               style={{
                 shadowColor: "#000",
@@ -90,10 +90,15 @@ export default function HomeScreen() {
                 elevation: 2,
               }}
             >
-              <Ionicons name="search-outline" size={18} color="#9CA3AF" />
-              <Text className="text-gray-400 text-sm flex-1">
-                search properties ,cities
-              </Text>
+              <TouchableOpacity
+                onPress={() => router.push("/(root)/(tabs)/search")}
+                className="flex-1 flex-row items-center gap-3"
+              >
+                <Ionicons name="search-outline" size={18} color="#9CA3AF" />
+                <Text className="text-gray-400 text-sm flex-1">
+                  Rechercher propriétés, villes
+                </Text>
+              </TouchableOpacity>
 
               <TouchableOpacity
                 onPress={() =>
@@ -103,52 +108,56 @@ export default function HomeScreen() {
               >
                 <Ionicons name="options-outline" size={15} color="white" />
               </TouchableOpacity>
-            </TouchableOpacity>
+            </View>
 
             {/* featured section*/}
             <View className="mb-6">
               <Text className="text-gray-900 text-lg font-bold px-5 mb-4">
-                featured
+                En vedette
               </Text>
-              {loading ? (
+              {initialLoading ? (
                 <ActivityIndicator
                   size="small"
-                  color="#25663EB"
+                  color="#2563EB"
                   className="py-10"
                 />
               ) : (
                 <FlatList
                   data={featured}
                   keyExtractor={(item) => item.id}
-                  renderItem={({ item }) => <FeaturedCard property={item}/>}
+                  renderItem={({ item }) => <FeaturedCard property={item} />}
                   horizontal
-                  showsVerticalScrollIndicator={false}
+                  showsHorizontalScrollIndicator={false}
                   contentContainerStyle={{ paddingHorizontal: 20 }}
+                  ListEmptyComponent={
+                    <Text className="text-gray-400 px-5">
+                      Aucune propriété en vedette
+                    </Text>
+                  }
                 />
               )}
             </View>
             {/* Recommended header*/}
             <Text className="text-gray-900 text-lg font-bold px-5 mb-4">
-              Recommended
+              Recommandées
             </Text>
           </View>
         }
         renderItem={({ item }) => (
           <View className="px-5">
-            <PropertyCard  property={item}/>
+            <PropertyCard property={item} />
           </View>
         )}
         ListEmptyComponent={
-          !loading ? (
+          !initialLoading ? (
             <View className="items-center py-10">
-              <Text className="text-gray-400 "> No properties found</Text>
+              <Text className="text-gray-400 ">
+                Aucune propriété trouvée
+              </Text>
             </View>
           ) : null
         }
       />
-      <View>
-        <Text>HomeScreen</Text>
-      </View>
     </SafeAreaView>
   );
 }

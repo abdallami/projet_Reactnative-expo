@@ -2,8 +2,8 @@ import { useSupabase } from "@/hooks/useSupabase";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import * as Location from "expo-location";
-import { useRouter } from "expo-router";
-import { useState } from "react";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -53,7 +53,7 @@ interface FormState {
   localImages: string[];
 }
 
-const INITIAL_FORM: FormState = {
+const EMPTY_FORM: FormState = {
   title: "",
   description: "",
   price: "",
@@ -144,13 +144,13 @@ function Toggle({
   );
 }
 
-export default function CreatePropertyScreen() {
+export default function EditPropertyScreen() {
   const router = useRouter();
+  const { id } = useLocalSearchParams<{ id: string }>();
   const authSupabase = useSupabase();
 
-  const [form, setForm] = useState<FormState>(INITIAL_FORM);
-
-  // Loading states
+  const [form, setForm] = useState<FormState>(EMPTY_FORM);
+  const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [uploadingImages, setUploadingImages] = useState(false);
   const [detectingLocation, setDetectingLocation] = useState(false);
@@ -158,7 +158,43 @@ export default function CreatePropertyScreen() {
   const updateForm = (fields: Partial<FormState>) =>
     setForm((prev) => ({ ...prev, ...fields }));
 
-  // ─── Image Picker ──────────────────────────────────────────
+  useEffect(() => {
+    const load = async () => {
+      const { data, error } = await authSupabase
+        .from("properties")
+        .select("*")
+        .eq("id", id)
+        .single();
+
+      if (error || !data) {
+        Alert.alert("Erreur", "Impossible de charger la propriété.");
+        router.back();
+        return;
+      }
+
+      setForm({
+        title: data.title ?? "",
+        description: data.description ?? "",
+        price: data.price != null ? String(data.price) : "",
+        type: (TYPES as readonly string[]).includes(data.type)
+          ? (data.type as PropertyType)
+          : "apartment",
+        bedrooms: data.bedrooms ?? 1,
+        bathrooms: data.bathrooms ?? 1,
+        areaSqft: data.area_sqft != null ? String(data.area_sqft) : "",
+        address: data.address ?? "",
+        city: data.city ?? "",
+        latitude: data.latitude != null ? String(data.latitude) : "",
+        longitude: data.longitude != null ? String(data.longitude) : "",
+        isFeatured: !!data.is_featured,
+        images: data.images ?? [],
+        localImages: data.images ?? [],
+      });
+      setLoading(false);
+    };
+    void load();
+  }, [id, authSupabase, router]);
+
   const handlePickImages = async () => {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permission.granted) {
@@ -247,7 +283,6 @@ export default function CreatePropertyScreen() {
     }));
   };
 
-  // ─── Location Detection ────────────────────────────────────
   const handleDetectLocation = async () => {
     setDetectingLocation(true);
     try {
@@ -278,7 +313,6 @@ export default function CreatePropertyScreen() {
     }
   };
 
-  // ─── Submit ────────────────────────────────────────────────
   const handleSubmit = async () => {
     if (!form.title.trim())
       return Alert.alert("Validation", "Le titre est requis.");
@@ -305,41 +339,49 @@ export default function CreatePropertyScreen() {
     setSubmitting(true);
 
     try {
-      const { error } = await authSupabase.from("properties").insert({
-        title: form.title.trim(),
-        description: form.description.trim(),
-        price: priceNum,
-        type: form.type,
-        bedrooms: form.bedrooms,
-        bathrooms: form.bathrooms,
-        area_sqft: form.areaSqft ? Number(form.areaSqft) : null,
-        address: form.address.trim(),
-        city: form.city.trim(),
-        latitude: form.latitude ? Number(form.latitude) : null,
-        longitude: form.longitude ? Number(form.longitude) : null,
-        images: form.images,
-        is_featured: form.isFeatured,
-        is_sold: false,
-      });
+      const { error } = await authSupabase
+        .from("properties")
+        .update({
+          title: form.title.trim(),
+          description: form.description.trim(),
+          price: priceNum,
+          type: form.type,
+          bedrooms: form.bedrooms,
+          bathrooms: form.bathrooms,
+          area_sqft: form.areaSqft ? Number(form.areaSqft) : null,
+          address: form.address.trim(),
+          city: form.city.trim(),
+          latitude: form.latitude ? Number(form.latitude) : null,
+          longitude: form.longitude ? Number(form.longitude) : null,
+          images: form.images,
+          is_featured: form.isFeatured,
+        })
+        .eq("id", id);
 
       if (error) {
-        console.error("Property creation error:", error);
-        Alert.alert("Création impossible", error.message);
+        console.error("Property update error:", error);
+        Alert.alert("Modification impossible", error.message);
         return;
       }
 
-      setForm(INITIAL_FORM);
-      router.replace("/(root)/(tabs)");
-      Alert.alert("Succès ! 🎉", "Propriété publiée avec succès.");
+      router.replace(`/(root)/property/${id}`);
+      Alert.alert("Succès ! 🎉", "Propriété modifiée avec succès.");
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Erreur inconnue.";
-      console.error("Property creation exception:", err);
-      Alert.alert("Création impossible", message);
+      const message = err instanceof Error ? err.message : "Erreur inconnue.";
+      console.error("Property update exception:", err);
+      Alert.alert("Modification impossible", message);
     } finally {
       setSubmitting(false);
     }
   };
+
+  if (loading) {
+    return (
+      <SafeAreaView className="flex-1 bg-gray-50 items-center justify-center">
+        <ActivityIndicator size="large" color="#2563EB" />
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
@@ -348,9 +390,16 @@ export default function CreatePropertyScreen() {
         className="flex-1"
       >
         {/* Header */}
-        <View className="flex-row items-center px-5 pt-4 pb-3">
+        <View className="flex-row items-center px-5 pt-4 pb-3 gap-3">
+          <TouchableOpacity
+            onPress={() => router.back()}
+            className="w-10 h-10 bg-white rounded-full items-center justify-center"
+            style={{ elevation: 2 }}
+          >
+            <Ionicons name="arrow-back" size={20} color="#111827" />
+          </TouchableOpacity>
           <Text className="text-2xl font-bold text-gray-900 flex-1">
-            Ajouter une propriété
+            Modifier la propriété
           </Text>
         </View>
 
@@ -363,7 +412,9 @@ export default function CreatePropertyScreen() {
           <View className={sectionClass}>
             <Text className={labelClass}>
               Photos{" "}
-              <Text className="text-gray-400 font-normal">(jusqu&apos;à 6)</Text>
+              <Text className="text-gray-400 font-normal">
+                (jusqu&apos;à 6)
+              </Text>
             </Text>
 
             <View className="flex-row flex-wrap gap-3">
@@ -440,7 +491,6 @@ export default function CreatePropertyScreen() {
             />
           </View>
 
-          {/* Price */}
           <View className={sectionClass}>
             <Text className={labelClass}>Prix (€)</Text>
             <TextInput
@@ -456,7 +506,6 @@ export default function CreatePropertyScreen() {
             </Text>
           </View>
 
-          {/* Property Type */}
           <View className={sectionClass}>
             <Text className={labelClass}>Type de propriété</Text>
             <View className="flex-row flex-wrap gap-2">
@@ -482,7 +531,6 @@ export default function CreatePropertyScreen() {
             </View>
           </View>
 
-          {/* Bedrooms / Bathrooms */}
           <View className="flex-row gap-4 mb-5">
             <Counter
               label="Chambres"
@@ -508,7 +556,6 @@ export default function CreatePropertyScreen() {
             />
           </View>
 
-          {/* Location */}
           <View className={sectionClass}>
             <Text className={labelClass}>Adresse</Text>
             <TextInput
@@ -531,7 +578,6 @@ export default function CreatePropertyScreen() {
             />
           </View>
 
-          {/* Coordinates */}
           <View className={sectionClass}>
             <View className="flex-row items-center justify-between mb-1.5">
               <Text className={labelClass}>Coordonnées</Text>
@@ -575,7 +621,6 @@ export default function CreatePropertyScreen() {
             </View>
           </View>
 
-          {/* Toggles */}
           <View className="gap-3 mb-5">
             <Toggle
               label="Propriété en vedette"
@@ -585,7 +630,6 @@ export default function CreatePropertyScreen() {
             />
           </View>
 
-          {/* Submit */}
           <TouchableOpacity
             onPress={handleSubmit}
             disabled={submitting || uploadingImages}
@@ -603,7 +647,7 @@ export default function CreatePropertyScreen() {
               <ActivityIndicator color="white" />
             ) : (
               <Text className="text-white font-bold text-base">
-                Publier la propriété
+                Enregistrer les modifications
               </Text>
             )}
           </TouchableOpacity>
