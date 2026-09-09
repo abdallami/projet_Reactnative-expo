@@ -122,14 +122,14 @@ export default function SignIn() {
     const isEmailCode = selectedFactor.strategy === "email_code";
     const isEmailLink = selectedFactor.strategy === "email_link";
     const verificationLabel = isEmailCode
-      ? `we sent a code to ${email}`
+      ? `Nous avons envoyé un code à ${email}`
       : selectedFactor.strategy === "phone_code"
-        ? "we sent a code to your phone"
+        ? "Nous avons envoyé un code à votre téléphone"
         : selectedFactor.strategy === "totp"
-          ? "enter the code from your authenticator app"
+          ? "Entrez le code de votre application d'authentification"
           : selectedFactor.strategy === "backup_code"
-            ? "enter one of your backup codes"
-            : "check your email for a verification link";
+            ? "Entrez l'un de vos codes de secours"
+            : "Consultez votre e-mail pour le lien de vérification";
 
     return (
       <View className="flex-1 justify-center px-6 py-12">
@@ -140,14 +140,14 @@ export default function SignIn() {
           style={{ width: 96, height: 64 }}
         />
         <Text className="text-3xl font-bold text-gray-800 mb-2">
-          Verify your account
+          Vérifiez votre compte
         </Text>
         <Text className=" text-gray-500 mb-8">{verificationLabel}</Text>
         <View className="flex gap-3 mb-4">
           {!isEmailLink && (
             <TextInput
               className="w-full border border-gray-300 rounded-xl py-3 px-4 "
-              placeholder="Entrer vefication code"
+              placeholder="Entrer le code de vérification"
               placeholderTextColor="#9CA3AF"
               autoCapitalize="words"
               keyboardType="number-pad"
@@ -169,7 +169,7 @@ export default function SignIn() {
             {isLoading ? (
               <ActivityIndicator color="white" />
             ) : (
-              <Text className="text-white font-bold text-base">Verify</Text>
+              <Text className="text-white font-bold text-base">Vérifier</Text>
             )}
           </TouchableOpacity>
           {isEmailCode && (
@@ -177,7 +177,9 @@ export default function SignIn() {
               onPress={() => sendChallengeForFactor(selectedFactor)}
               className="py-2"
             >
-              <Text className="text-blue-600">{`j'ai besoin d'un nouvau code`}</Text>
+              <Text className="text-blue-600">
+                {"J'ai besoin d'un nouveau code"}
+              </Text>
             </TouchableOpacity>
           )}
         </View>
@@ -193,7 +195,7 @@ export default function SignIn() {
       className="bg-white"
     >
       <View className="flex-1 justify-center px-6 py-12">
-        <Text className="text-xl font-bold ">Signup</Text>
+        <Text className="text-xl font-bold ">Connexion</Text>
         <Image
           source={require("../../assets/images/logo.png")}
           className="w-24 h-16 mb-8"
@@ -203,11 +205,11 @@ export default function SignIn() {
         <Text className="text-3xl font-bold text-gray-800 mb-2">
           Bienvenue sur notre application
         </Text>
-        <Text className=" text-gray-500 mb-8">connectez-vous</Text>
+        <Text className=" text-gray-500 mb-8">Connectez-vous</Text>
 
         <TextInput
           className="w-full border border-gray-300 rounded-xl py-3 px-4 mb-4 "
-          placeholder="Email addresse"
+          placeholder="Adresse e-mail"
           placeholderTextColor="#9CA3AF"
           autoCapitalize="none"
           value={email}
@@ -222,7 +224,7 @@ export default function SignIn() {
 
         <TextInput
           className="w-full border border-gray-300 rounded-xl py-3 mb-4 "
-          placeholder=" password"
+          placeholder="Mot de passe"
           placeholderTextColor="#9CA3AF"
           autoCapitalize="none"
           value={password}
@@ -243,13 +245,15 @@ export default function SignIn() {
           {isLoading ? (
             <ActivityIndicator color="white" />
           ) : (
-            <Text className="text-white font-bold text-base">Sign In</Text>
+            <Text className="text-white font-bold text-base">
+              Se connecter
+            </Text>
           )}
         </TouchableOpacity>
         <View className="flex-row justify-center items-center gap-2">
           <Text className="text-gray-500">{"Vous n'avez pas de compte?"}</Text>
           <Link href="/sign-up">
-            <Text className="text-blue-600 font-semibold">s'inscrire</Text>
+            <Text className="text-blue-600 font-semibold">S&apos;inscrire</Text>
           </Link>
         </View>
         <View nativeID="clerk-captcha" />

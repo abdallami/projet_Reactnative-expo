@@ -11,10 +11,6 @@ export function createClearkSupabaseClient(
 ) {
   return createClient(supabaseUrl, supabaseAnonKey, {
     async accessToken() {
-      if (typeof window === "undefined") {
-        return null;
-      }
-
       try {
         return await getToken();
       } catch (error: unknown) {

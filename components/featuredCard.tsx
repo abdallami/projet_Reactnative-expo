@@ -1,4 +1,4 @@
-import { formatPrice } from "@/lib/utils";
+import { formatPrice, formatPropertyType } from "@/lib/utils";
 import { Property } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -6,8 +6,8 @@ import { useRouter } from "expo-router";
 import React from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 
-export default function featuredCard({ property }: { property: Property }) {
-  const router=useRouter();
+export default function FeaturedCard({ property }: { property: Property }) {
+  const router = useRouter();
 
   return (
     <TouchableOpacity
@@ -19,7 +19,7 @@ export default function featuredCard({ property }: { property: Property }) {
         elevation: 4,
         opacity: property.is_sold ? 0.5 : 1,
       }}
-      onPress={()=>router.push(`/(root)/property/${property.id}`)}
+      onPress={() => router.push(`/(root)/property/${property.id}`)}
     >
       <Image
         source={{ uri: property.images[0] }}
@@ -27,13 +27,13 @@ export default function featuredCard({ property }: { property: Property }) {
         resizeMode="cover"
       />
       <View className="absolute top-3 left-3 bg-white/90 px-3 py-1 rounded-full">
-        <Text className="text-xs font-semibold text-blue-600 capitalize">
-          {property.type}
+        <Text className="text-xs font-semibold text-blue-600">
+          {formatPropertyType(property.type)}
         </Text>
       </View>
       {property.is_sold && (
         <View className="absolute top-3 bg-red-500 px-3 py-1 right-3 rounded-full">
-          <Text className="text-xs fond-semibold text-white">sold</Text>
+          <Text className="text-xs font-semibold text-white">Vendu</Text>
         </View>
       )}
 
@@ -61,7 +61,9 @@ export default function featuredCard({ property }: { property: Property }) {
             </View>
             <View className="flex-row items-center gap-1">
               <Ionicons name="water-outline" size={13} color="#6B7280" />
-              <Text className="text-xs text-gray-500">{property.bedrooms}</Text>
+              <Text className="text-xs text-gray-500">
+                {property.bathrooms}
+              </Text>
             </View>
           </View>
         </View>

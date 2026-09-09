@@ -11,7 +11,7 @@ function AndroidTabs() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "Home",
+          title: "Accueil",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="home" color={color} size={size} />
           ),
@@ -20,7 +20,7 @@ function AndroidTabs() {
       <Tabs.Screen
         name="search"
         options={{
-          title: "search",
+          title: "Recherche",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="search" color={color} size={size} />
           ),
@@ -29,7 +29,7 @@ function AndroidTabs() {
       <Tabs.Screen
         name="create"
         options={{
-          title: "Add",
+          title: "Ajouter",
           href: isAdmin ? undefined : null,
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="add-circle" color={color} size={size} />
@@ -40,7 +40,7 @@ function AndroidTabs() {
       <Tabs.Screen
         name="saved"
         options={{
-          title: "saved",
+          title: "Favoris",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="heart" color={color} size={size} />
           ),
@@ -49,7 +49,7 @@ function AndroidTabs() {
       <Tabs.Screen
         name="profile"
         options={{
-          title: "profile",
+          title: "Profil",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="person" color={color} size={size} />
           ),
@@ -64,28 +64,28 @@ function IOSTabs() {
   return (
     <NativeTabs>
       <NativeTabs.Trigger name="index">
-        <Label>Home</Label>
+        <Label>Accueil</Label>
         <Icon sf="house.fill" />
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="search">
         <Icon sf="magnifyingglass" />
-        <Label>Search</Label>
+        <Label>Recherche</Label>
       </NativeTabs.Trigger>
       {/*create prorerty*/}
 
       {isAdmin && (
         <NativeTabs.Trigger name="create">
           <Icon sf="plus.circle.fill" />
-          <Label>Add property </Label>
+          <Label>Ajouter</Label>
         </NativeTabs.Trigger>
       )}
       <NativeTabs.Trigger name="saved">
         <Icon sf="heart.fill" />
-        <Label>Saved</Label>
+        <Label>Favoris</Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="profile">
         <Icon sf="person.circle" />
-        <Label>Profile</Label>
+        <Label>Profil</Label>
       </NativeTabs.Trigger>
     </NativeTabs>
   );

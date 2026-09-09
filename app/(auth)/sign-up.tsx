@@ -68,7 +68,7 @@ export default function Signup() {
   ) {
     return (
       <View className="flex-1 justify-center px-6 py-12">
-        <Text className="text-xl font-bold ">Signup</Text>
+        <Text className="text-xl font-bold ">Inscription</Text>
         <Image
           source={require("../../assets/images/logo.png")}
           className="w-24 h-16 mb-8"
@@ -76,13 +76,15 @@ export default function Signup() {
           style={{ width: 96, height: 64 }}
         />
         <Text className="text-3xl font-bold text-gray-800 mb-2">
-          Verify your accout {""}
+          Vérifiez votre compte
         </Text>
-        <Text className=" text-gray-500 mb-8">we send a code to {email}</Text>
+        <Text className=" text-gray-500 mb-8">
+          Nous avons envoyé un code à {email}
+        </Text>
         <View className="flex gap-3 mb-4">
           <TextInput
             className="w-full border border-gray-300 rounded-xl py-3 px-4 "
-            placeholder="Entrer vefication code"
+            placeholder="Entrer le code de vérification"
             placeholderTextColor="#9CA3AF"
             autoCapitalize="words"
             keyboardType="number-pad"
@@ -103,14 +105,16 @@ export default function Signup() {
             {isLoading ? (
               <ActivityIndicator color="white" />
             ) : (
-              <Text className="text-white font-bold text-base">Verify</Text>
+              <Text className="text-white font-bold text-base">Vérifier</Text>
             )}
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => signUp.verifications.sendEmailCode()}
             className="py-2"
           >
-            <Text className="text-blue-600">j'ai besoin d'un nouvau code</Text>
+            <Text className="text-blue-600">
+              {"J'ai besoin d'un nouveau code"}
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -125,7 +129,7 @@ export default function Signup() {
       className="bg-white"
     >
       <View className="flex-1 justify-center px-6 py-12">
-        <Text className="text-xl font-bold ">Signup</Text>
+        <Text className="text-xl font-bold ">Inscription</Text>
         <Image
           source={require("../../assets/images/logo.png")}
           className="w-24 h-16 mb-8"
@@ -133,10 +137,10 @@ export default function Signup() {
           style={{ width: 96, height: 64 }}
         />
         <Text className="text-3xl font-bold text-gray-800 mb-2">
-          créer compte
+          Créer un compte
         </Text>
         <Text className=" text-gray-500 mb-8">
-          Trouvez la maison de votre reve
+          Trouvez la maison de vos rêves
         </Text>
         <View className="flex-row gap-3 mb-4">
           <TextInput
@@ -149,7 +153,7 @@ export default function Signup() {
           />
           <TextInput
             className="flex-1 border border-gray-300 rounded-xl py-3 px-4"
-            placeholder="Prenom"
+            placeholder="Prénom"
             placeholderTextColor="#9CA3AF"
             autoCapitalize="words"
             value={prenom}
@@ -158,7 +162,7 @@ export default function Signup() {
         </View>
         <TextInput
           className="w-full border border-gray-300 rounded-xl py-3 px-4 mb-4 "
-          placeholder="Email addresse"
+          placeholder="Adresse e-mail"
           placeholderTextColor="#9CA3AF"
           autoCapitalize="none"
           value={email}
@@ -173,7 +177,7 @@ export default function Signup() {
 
         <TextInput
           className="w-full border border-gray-300 rounded-xl py-3 mb-4 "
-          placeholder=" password"
+          placeholder="Mot de passe"
           placeholderTextColor="#9CA3AF"
           autoCapitalize="none"
           value={password}
@@ -194,11 +198,11 @@ export default function Signup() {
           {isLoading ? (
             <ActivityIndicator color="white" />
           ) : (
-            <Text className="text-white font-bold text-base">Sign Up</Text>
+            <Text className="text-white font-bold text-base">S&apos;inscrire</Text>
           )}
         </TouchableOpacity>
         <View className="flex-row justify-center items-center gap-2">
-          <Text className="text-gray-500">Avez-vous un compte?</Text>
+          <Text className="text-gray-500">Avez-vous déjà un compte ?</Text>
           <Link href="/sign-in">
             <Text className="text-blue-600 font-semibold">Connectez-vous</Text>
           </Link>
