@@ -40,6 +40,9 @@ export const useUserSync = () => {
 
       // L'utilisateur n'existe pas - le créer
       console.log("📝 Création nouvel utilisateur...");
+      const wantsAgent = Boolean(
+        (user!.unsafeMetadata as { isAgent?: boolean } | null)?.isAgent,
+      );
       const { data: newUser, error: insertError } = await authSupabase
         .from("users")
         .insert({
@@ -48,6 +51,7 @@ export const useUserSync = () => {
           first_name: user!.firstName,
           last_name: user!.lastName,
           avatar_url: user!.imageUrl,
+          is_admin: wantsAgent,
         })
         .select("is_admin")
         .single();

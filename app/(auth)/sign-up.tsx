@@ -1,4 +1,5 @@
 import { useAuth, useSignUp } from "@clerk/expo";
+import { Ionicons } from "@expo/vector-icons";
 import { Link, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -18,6 +19,7 @@ export default function Signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [code, setCode] = useState("");
+  const [isAgent, setIsAgent] = useState(false);
 
   // pour la fonction de sign up pour verifier si l'utilisateur est connecté ou pas erreur de registration et le status de la requete
   const { signUp, errors, fetchStatus } = useSignUp();
@@ -40,6 +42,7 @@ export default function Signup() {
       password,
       firstName: prenom,
       lastName: nom,
+      unsafeMetadata: { isAgent },
     });
     if (error) {
       alert(error.message);
@@ -189,6 +192,33 @@ export default function Signup() {
             {errors.fields.password.message}
           </Text>
         )}
+
+        <TouchableOpacity
+          onPress={() => setIsAgent(!isAgent)}
+          className={`flex-row items-center justify-between p-4 rounded-xl border mb-4 ${
+            isAgent ? "bg-blue-50 border-blue-200" : "bg-white border-gray-300"
+          }`}
+        >
+          <View className="flex-1 mr-3">
+            <Text
+              className={`font-semibold ${
+                isAgent ? "text-blue-700" : "text-gray-700"
+              }`}
+            >
+              Je suis agent immobilier
+            </Text>
+            <Text className="text-xs text-gray-400 mt-0.5">
+              Cochez pour pouvoir publier des propriétés
+            </Text>
+          </View>
+          <View
+            className={`w-6 h-6 rounded-full border-2 items-center justify-center ${
+              isAgent ? "bg-blue-600 border-blue-600" : "border-gray-300"
+            }`}
+          >
+            {isAgent && <Ionicons name="checkmark" size={14} color="white" />}
+          </View>
+        </TouchableOpacity>
 
         <TouchableOpacity
           onPress={onSingnUpPress}
