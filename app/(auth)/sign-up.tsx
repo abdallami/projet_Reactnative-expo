@@ -20,6 +20,7 @@ export default function Signup() {
   const [password, setPassword] = useState("");
   const [code, setCode] = useState("");
   const [isAgent, setIsAgent] = useState(false);
+  const [whatsappNumber, setWhatsappNumber] = useState("");
 
   // pour la fonction de sign up pour verifier si l'utilisateur est connecté ou pas erreur de registration et le status de la requete
   const { signUp, errors, fetchStatus } = useSignUp();
@@ -37,12 +38,19 @@ export default function Signup() {
 
   //la fonction pour s'inscrire
   const onSingnUpPress = async () => {
+    if (isAgent && !whatsappNumber.trim()) {
+      alert("Veuillez renseigner votre numéro WhatsApp pour recevoir les demandes de contact.");
+      return;
+    }
     const { error } = await signUp.password({
       emailAddress: email,
       password,
       firstName: prenom,
       lastName: nom,
-      unsafeMetadata: { isAgent },
+      unsafeMetadata: {
+        isAgent,
+        whatsappNumber: isAgent ? whatsappNumber.trim() : "",
+      },
     });
     if (error) {
       alert(error.message);
@@ -219,6 +227,18 @@ export default function Signup() {
             {isAgent && <Ionicons name="checkmark" size={14} color="white" />}
           </View>
         </TouchableOpacity>
+
+        {isAgent && (
+          <TextInput
+            className="w-full border border-gray-300 rounded-xl py-3 px-4 mb-4"
+            placeholder="Numéro WhatsApp (ex. +221771234567)"
+            placeholderTextColor="#9CA3AF"
+            autoCapitalize="none"
+            keyboardType="phone-pad"
+            value={whatsappNumber}
+            onChangeText={setWhatsappNumber}
+          />
+        )}
 
         <TouchableOpacity
           onPress={onSingnUpPress}

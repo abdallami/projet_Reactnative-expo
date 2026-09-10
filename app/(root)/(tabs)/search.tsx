@@ -34,11 +34,13 @@ export default function SearchScreen() {
   const {
     search,
     type,
+    transactionType,
     bedrooms,
     minPrice,
     maxPrice,
     setSearch,
     setType,
+    setTransactionType,
     setBedrooms,
     setMinPrice,
     setMaxPrice,
@@ -46,6 +48,7 @@ export default function SearchScreen() {
 
   const activeFilterCount = [
     type !== null,
+    transactionType !== null,
     bedrooms !== null,
     minPrice !== null,
     maxPrice !== null,
@@ -66,6 +69,10 @@ export default function SearchScreen() {
       query = query.eq("type", type);
     }
 
+    if (transactionType) {
+      query = query.eq("transaction_type", transactionType);
+    }
+
     if (bedrooms) {
       query = query.eq("bedrooms", bedrooms);
     }
@@ -82,7 +89,7 @@ export default function SearchScreen() {
 
     setResults(data ?? []);
     setLoading(false);
-  }, [supabase, search, type, bedrooms, minPrice, maxPrice]);
+  }, [supabase, search, type, transactionType, bedrooms, minPrice, maxPrice]);
 
   useEffect(() => {
     fetchResults();
@@ -156,6 +163,16 @@ export default function SearchScreen() {
         {/* Active Filter Chips */}
         {activeFilterCount > 0 && (
           <View className="flex-row flex-wrap gap-2 mt-3">
+            {transactionType && (
+              <View className="flex-row items-center bg-blue-50 border border-blue-200 rounded-full px-3 py-1 gap-1">
+                <Text className="text-blue-700 text-xs font-semibold">
+                  {transactionType === "rent" ? "À louer" : "À vendre"}
+                </Text>
+                <TouchableOpacity onPress={() => setTransactionType(null)}>
+                  <Ionicons name="close" size={12} color="#1D4ED8" />
+                </TouchableOpacity>
+              </View>
+            )}
             {type && (
               <View className="flex-row items-center bg-blue-50 border border-blue-200 rounded-full px-3 py-1 gap-1">
                 <Text className="text-blue-700 text-xs font-semibold">

@@ -1,5 +1,7 @@
 import { useSupabase } from "@/hooks/useSupabase";
 import { formatPriceInWords } from "@/lib/utils";
+import { useUserStore } from "@/store/userStore";
+import { useUser } from "@clerk/expo";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import * as Location from "expo-location";
@@ -29,6 +31,8 @@ const TYPE_LABELS: Record<PropertyType, string> = {
   studio: "Studio",
 };
 
+type TransactionType = "sale" | "rent";
+
 const MIN_PRICE = 1;
 const MAX_PRICE = 999_999_999;
 
@@ -42,6 +46,7 @@ interface FormState {
   description: string;
   price: string;
   type: PropertyType;
+  transactionType: TransactionType;
   bedrooms: number;
   bathrooms: number;
   areaSqft: string;
@@ -60,6 +65,7 @@ const INITIAL_FORM: FormState = {
   description: "",
   price: "",
   type: "apartment",
+  transactionType: "sale",
   bedrooms: 1,
   bathrooms: 1,
   areaSqft: "",
@@ -150,6 +156,8 @@ function Toggle({
 export default function CreatePropertyScreen() {
   const router = useRouter();
   const authSupabase = useSupabase();
+  const { user } = useUser();
+  const whatsappNumber = useUserStore((state) => state.whatsappNumber);
 
   const [form, setForm] = useState<FormState>(INITIAL_FORM);
 
@@ -305,6 +313,13 @@ export default function CreatePropertyScreen() {
     if (form.images.length === 0)
       return Alert.alert("Validation", "Veuillez ajouter au moins une image.");
 
+    if (!whatsappNumber?.trim()) {
+      return Alert.alert(
+        "Numéro WhatsApp requis",
+        "Ajoutez votre numéro WhatsApp dans votre profil avant de publier une propriété (les acheteurs vous contacteront via ce numéro).",
+      );
+    }
+
     setSubmitting(true);
 
     try {
@@ -313,6 +328,7 @@ export default function CreatePropertyScreen() {
         description: form.description.trim(),
         price: priceNum,
         type: form.type,
+        transaction_type: form.transactionType,
         bedrooms: form.bedrooms,
         bathrooms: form.bathrooms,
         area_sqft: form.areaSqft ? Number(form.areaSqft) : null,
@@ -324,6 +340,8 @@ export default function CreatePropertyScreen() {
         images: form.images,
         is_featured: form.isFeatured,
         is_sold: false,
+        owner_clerk_id: user?.id ?? null,
+        owner_whatsapp: whatsappNumber.trim(),
       });
 
       if (error) {
@@ -363,6 +381,40 @@ export default function CreatePropertyScreen() {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
+          {/* Transaction type */}
+          <View className={sectionClass}>
+            <Text className={labelClass}>Type d&apos;annonce</Text>
+            <View className="flex-row gap-3">
+              {(
+                [
+                  { value: "sale", label: "À vendre" },
+                  { value: "rent", label: "À louer" },
+                ] as const
+              ).map((opt) => {
+                const active = form.transactionType === opt.value;
+                return (
+                  <TouchableOpacity
+                    key={opt.value}
+                    onPress={() => updateForm({ transactionType: opt.value })}
+                    className={`flex-1 items-center py-3 rounded-2xl border ${
+                      active
+                        ? "bg-blue-600 border-blue-600"
+                        : "bg-white border-gray-200"
+                    }`}
+                  >
+                    <Text
+                      className={`font-semibold ${
+                        active ? "text-white" : "text-gray-600"
+                      }`}
+                    >
+                      {opt.label}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </View>
+
           {/* Images */}
           <View className={sectionClass}>
             <Text className={labelClass}>
@@ -446,7 +498,11 @@ export default function CreatePropertyScreen() {
 
           {/* Price */}
           <View className={sectionClass}>
-            <Text className={labelClass}>Prix (FCFA)</Text>
+            <Text className={labelClass}>
+              {form.transactionType === "rent"
+                ? "Loyer mensuel (FCFA)"
+                : "Prix de vente (FCFA)"}
+            </Text>
             <TextInput
               className={inputClass}
               placeholder="ex. 25000000"

@@ -29,6 +29,8 @@ const TYPE_LABELS: Record<PropertyType, string> = {
   studio: "Studio",
 };
 
+type TransactionType = "sale" | "rent";
+
 const MIN_PRICE = 1;
 const MAX_PRICE = 999_999_999;
 
@@ -42,6 +44,7 @@ interface FormState {
   description: string;
   price: string;
   type: PropertyType;
+  transactionType: TransactionType;
   bedrooms: number;
   bathrooms: number;
   areaSqft: string;
@@ -60,6 +63,7 @@ const EMPTY_FORM: FormState = {
   description: "",
   price: "",
   type: "apartment",
+  transactionType: "sale",
   bedrooms: 1,
   bathrooms: 1,
   areaSqft: "",
@@ -182,6 +186,7 @@ export default function EditPropertyScreen() {
         type: (TYPES as readonly string[]).includes(data.type)
           ? (data.type as PropertyType)
           : "apartment",
+        transactionType: data.transaction_type === "rent" ? "rent" : "sale",
         bedrooms: data.bedrooms ?? 1,
         bathrooms: data.bathrooms ?? 1,
         areaSqft: data.area_sqft != null ? String(data.area_sqft) : "",
@@ -350,6 +355,7 @@ export default function EditPropertyScreen() {
           description: form.description.trim(),
           price: priceNum,
           type: form.type,
+          transaction_type: form.transactionType,
           bedrooms: form.bedrooms,
           bathrooms: form.bathrooms,
           area_sqft: form.areaSqft ? Number(form.areaSqft) : null,
@@ -413,6 +419,40 @@ export default function EditPropertyScreen() {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
+          {/* Transaction type */}
+          <View className={sectionClass}>
+            <Text className={labelClass}>Type d&apos;annonce</Text>
+            <View className="flex-row gap-3">
+              {(
+                [
+                  { value: "sale", label: "À vendre" },
+                  { value: "rent", label: "À louer" },
+                ] as const
+              ).map((opt) => {
+                const active = form.transactionType === opt.value;
+                return (
+                  <TouchableOpacity
+                    key={opt.value}
+                    onPress={() => updateForm({ transactionType: opt.value })}
+                    className={`flex-1 items-center py-3 rounded-2xl border ${
+                      active
+                        ? "bg-blue-600 border-blue-600"
+                        : "bg-white border-gray-200"
+                    }`}
+                  >
+                    <Text
+                      className={`font-semibold ${
+                        active ? "text-white" : "text-gray-600"
+                      }`}
+                    >
+                      {opt.label}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </View>
+
           {/* Images */}
           <View className={sectionClass}>
             <Text className={labelClass}>
@@ -497,7 +537,11 @@ export default function EditPropertyScreen() {
           </View>
 
           <View className={sectionClass}>
-            <Text className={labelClass}>Prix (FCFA)</Text>
+            <Text className={labelClass}>
+              {form.transactionType === "rent"
+                ? "Loyer mensuel (FCFA)"
+                : "Prix de vente (FCFA)"}
+            </Text>
             <TextInput
               className={inputClass}
               placeholder="ex. 25000000"

@@ -44,10 +44,12 @@ export default function FilterModal({
 }) {
   const {
     type,
+    transactionType,
     bedrooms,
     minPrice,
     maxPrice,
     setType,
+    setTransactionType,
     setBedrooms,
     setMinPrice,
     setMaxPrice,
@@ -105,6 +107,31 @@ export default function FilterModal({
           contentContainerStyle={{ padding: 20, paddingBottom: 40 }}
           showsVerticalScrollIndicator={false}
         >
+          {/* Transaction Type */}
+          <Text className="text-base font-bold text-gray-800 mb-3">
+            Type d&apos;annonce
+          </Text>
+          <View className="flex-row flex-wrap gap-2 mb-6">
+            {(
+              [
+                { label: "Toutes", value: null },
+                { label: "À vendre", value: "sale" as const },
+                { label: "À louer", value: "rent" as const },
+              ] as const
+            ).map((item) => (
+              <TouchableOpacity
+                key={String(item.value)}
+                onPress={() => setTransactionType(item.value)}
+                className={chip(transactionType === item.value)}
+                style={shadow}
+              >
+                <Text className={chipText(transactionType === item.value)}>
+                  {item.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
           {/* Property Type */}
           <Text className="text-base font-bold text-gray-800 mb-3">
             Type de propriété

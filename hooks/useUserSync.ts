@@ -7,6 +7,7 @@ import { useSupabase } from "./useSupabase";
 export const useUserSync = () => {
   const { user } = useUser();
   const setIsAdmin = useUserStore((state) => state.setIsAdmin);
+  const setWhatsappNumber = useUserStore((state) => state.setWhatsappNumber);
   const authSupabase = useSupabase();
 
   useEffect(() => {
@@ -21,7 +22,7 @@ export const useUserSync = () => {
       // Chercher l'utilisateur existant
       const { data, error: selectError } = await authSupabase
         .from("users")
-        .select("clerk_id, is_admin")
+        .select("clerk_id, is_admin, whatsapp_number")
         .eq("clerk_id", user!.id)
         .single();
 
@@ -35,14 +36,18 @@ export const useUserSync = () => {
         // L'utilisateur existe - mettre à jour le store
         console.log("✅ Utilisateur trouvé:", data);
         setIsAdmin(data.is_admin ?? false);
+        setWhatsappNumber(data.whatsapp_number ?? null);
         return;
       }
 
       // L'utilisateur n'existe pas - le créer
       console.log("📝 Création nouvel utilisateur...");
-      const wantsAgent = Boolean(
-        (user!.unsafeMetadata as { isAgent?: boolean } | null)?.isAgent,
-      );
+      const metadata = user!.unsafeMetadata as
+        | { isAgent?: boolean; whatsappNumber?: string }
+        | null;
+      const wantsAgent = Boolean(metadata?.isAgent);
+      const whatsapp = metadata?.whatsappNumber?.trim() || null;
+
       const { data: newUser, error: insertError } = await authSupabase
         .from("users")
         .insert({
@@ -52,8 +57,9 @@ export const useUserSync = () => {
           last_name: user!.lastName,
           avatar_url: user!.imageUrl,
           is_admin: wantsAgent,
+          whatsapp_number: whatsapp,
         })
-        .select("is_admin")
+        .select("is_admin, whatsapp_number")
         .single();
 
       if (insertError) {
@@ -63,6 +69,7 @@ export const useUserSync = () => {
 
       console.log("✅ Utilisateur créé:", newUser);
       setIsAdmin(newUser?.is_admin ?? false);
+      setWhatsappNumber(newUser?.whatsapp_number ?? null);
     } catch (error) {
       console.error("❌ Erreur synchronisation utilisateur:", error);
     }

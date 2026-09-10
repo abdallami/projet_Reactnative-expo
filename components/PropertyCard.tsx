@@ -58,6 +58,9 @@ export default function PropertyCard({
             <Text className="text-blue-600 font-bold text-sm">
               {" "}
               {formatPrice(property.price)}
+              {property.transaction_type === "rent" ? (
+                <Text className="text-gray-500 font-normal text-xs">/mois</Text>
+              ) : null}
             </Text>
             {property.is_sold && (
               <View className="absolute top-3 bg-red-500 px-3 py-1 right-3 rounded-full">

@@ -46,8 +46,6 @@ export default function PropertyDetailScreen() {
     fetchProperty();
   }, [id]);
 
-  const ADMIN_PHONE = "+23590876726"; // replace with your WhatsApp number
-
   const { width } = Dimensions.get("window");
   const onScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const index = Math.round(e.nativeEvent.contentOffset.x / width);
@@ -108,10 +106,16 @@ export default function PropertyDetailScreen() {
   };
 
   const handleContact = () => {
+    const rawNumber = property?.owner_whatsapp?.replace(/\D/g, "");
+    if (!rawNumber) {
+      Alert.alert(
+        "Numéro indisponible",
+        "Le vendeur n'a pas renseigné de numéro WhatsApp.",
+      );
+      return;
+    }
     const message = `Bonjour ! Je suis intéressé(e) par la propriété : ${property?.title}`;
-    const url = `https://wa.me/${ADMIN_PHONE}?text=${encodeURIComponent(
-      message,
-    )}`;
+    const url = `https://wa.me/${rawNumber}?text=${encodeURIComponent(message)}`;
     Linking.openURL(url);
   };
 
@@ -225,6 +229,23 @@ export default function PropertyDetailScreen() {
         >
           {/* Badges */}
           <View className="flex-row gap-2 mb-3 flex-wrap">
+            <View
+              className={`px-3 py-1 rounded-full ${
+                property.transaction_type === "rent"
+                  ? "bg-green-50"
+                  : "bg-purple-50"
+              }`}
+            >
+              <Text
+                className={`text-xs font-semibold ${
+                  property.transaction_type === "rent"
+                    ? "text-green-700"
+                    : "text-purple-700"
+                }`}
+              >
+                {property.transaction_type === "rent" ? "À louer" : "À vendre"}
+              </Text>
+            </View>
             <View className="bg-blue-50 px-3 py-1 rounded-full">
               <Text className="text-blue-600 text-xs font-semibold">
                 {formatPropertyType(property.type)}
@@ -248,11 +269,17 @@ export default function PropertyDetailScreen() {
           <Text className="text-2xl font-bold text-gray-900 mb-1">
             {property.title}
           </Text>
-          <Text className="text-blue-600 text-xl font-bold">
-            {formatPrice(property.price)}
-          </Text>
+          <View className="flex-row items-baseline gap-1">
+            <Text className="text-blue-600 text-xl font-bold">
+              {formatPrice(property.price)}
+            </Text>
+            {property.transaction_type === "rent" && (
+              <Text className="text-gray-500 text-sm font-medium">/mois</Text>
+            )}
+          </View>
           <Text className="text-gray-500 text-xs italic mb-4 capitalize">
-            ({formatPriceInWords(property.price)})
+            ({formatPriceInWords(property.price)}
+            {property.transaction_type === "rent" ? " / mois" : ""})
           </Text>
 
           {/* Specs Row */}

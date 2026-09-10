@@ -55,6 +55,9 @@ export default function FeaturedCard({ property }: { property: Property }) {
         <View className="flex-row items-center justify-between">
           <Text className="text-blue-600 font-bold text-base">
             {formatPrice(property.price)}
+            {property.transaction_type === "rent" ? (
+              <Text className="text-gray-500 font-normal text-xs">/mois</Text>
+            ) : null}
           </Text>
           <View className="flex-row items-center gap-3">
             <View className="flex-row items-center gap-1">
