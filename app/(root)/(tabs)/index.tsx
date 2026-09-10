@@ -96,7 +96,7 @@ export default function HomeScreen() {
               >
                 <Ionicons name="search-outline" size={18} color="#9CA3AF" />
                 <Text className="text-gray-400 text-sm flex-1">
-                  Rechercher propriétés, villes
+                  Rechercher villes, quartiers...
                 </Text>
               </TouchableOpacity>
 

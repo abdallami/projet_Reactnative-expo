@@ -57,7 +57,9 @@ export default function SearchScreen() {
     let query = supabase.from("properties").select("*");
 
     if (search) {
-      query = query.or(`title.ilike.%${search}%,city.ilike.%${search}%`);
+      query = query.or(
+        `title.ilike.%${search}%,city.ilike.%${search}%,quartier.ilike.%${search}%`,
+      );
     }
 
     if (type) {
@@ -109,7 +111,7 @@ export default function SearchScreen() {
             <Ionicons name="search-outline" size={18} color="#9CA3AF" />
             <TextInput
               className="flex-1 py-3 text-gray-800"
-              placeholder="Rechercher par titre ou ville..."
+              placeholder="Rechercher par titre, ville ou quartier..."
               placeholderTextColor="#9CA3AF"
               value={search}
               onChangeText={setSearch}

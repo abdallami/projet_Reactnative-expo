@@ -49,7 +49,9 @@ export default function PropertyCard({
           <View className="flex-row items-center gap-1">
             <Ionicons name="location-outline" size={11} color="#6B7280" />
             <Text className="text-xs text-gray-500  " numberOfLines={1}>
-              {property.city},{property.address}
+              {property.quartier
+                ? `${property.quartier}, ${property.city}`
+                : `${property.city}, ${property.address}`}
             </Text>
           </View>
           <View className="flex-row items-center justify-between">

@@ -21,10 +21,10 @@ const BEDS = [
 ];
 
 const PRICE_PRESETS = [
-  { label: "Moins de 100 k€", min: null, max: 100000 },
-  { label: "100 k€ – 300 k€", min: 100000, max: 300000 },
-  { label: "300 k€ – 500 k€", min: 300000, max: 500000 },
-  { label: "Plus de 500 k€", min: 500000, max: null },
+  { label: "Moins de 5 M FCFA", min: null, max: 5_000_000 },
+  { label: "5 M – 25 M FCFA", min: 5_000_000, max: 25_000_000 },
+  { label: "25 M – 100 M FCFA", min: 25_000_000, max: 100_000_000 },
+  { label: "Plus de 100 M FCFA", min: 100_000_000, max: null },
 ];
 
 const chip = (active: boolean) =>
@@ -153,7 +153,7 @@ export default function FilterModal({
 
           {/* Price Range */}
           <Text className="text-base font-bold text-gray-800 mb-3">
-            Fourchette de prix (€)
+            Fourchette de prix (FCFA)
           </Text>
           <View className="flex-row gap-3 mb-3">
             {[
@@ -178,7 +178,7 @@ export default function FilterModal({
                   className="flex-row items-center bg-white rounded-2xl px-3 border border-gray-200"
                   style={shadow}
                 >
-                  <Text className="text-gray-400 text-sm mr-1">€</Text>
+                  <Text className="text-gray-400 text-xs mr-1">FCFA</Text>
                   <TextInput
                     className="flex-1 py-3 text-gray-800"
                     placeholder={placeholder}

@@ -1,6 +1,10 @@
 import { useSavedProperty } from "@/hooks/useSavedProperty";
 import { useSupabase } from "@/hooks/useSupabase";
-import { formatPrice, formatPropertyType } from "@/lib/utils";
+import {
+  formatPrice,
+  formatPriceInWords,
+  formatPropertyType,
+} from "@/lib/utils";
 import { useUserStore } from "@/store/userStore";
 import { Property } from "@/types";
 import { useAuth } from "@clerk/expo";
@@ -244,8 +248,11 @@ export default function PropertyDetailScreen() {
           <Text className="text-2xl font-bold text-gray-900 mb-1">
             {property.title}
           </Text>
-          <Text className="text-blue-600 text-xl font-bold mb-4">
+          <Text className="text-blue-600 text-xl font-bold">
             {formatPrice(property.price)}
+          </Text>
+          <Text className="text-gray-500 text-xs italic mb-4 capitalize">
+            ({formatPriceInWords(property.price)})
           </Text>
 
           {/* Specs Row */}
@@ -296,7 +303,8 @@ export default function PropertyDetailScreen() {
           <View className="flex-row items-center gap-2 mb-4">
             <Ionicons name="location-outline" size={16} color="#6B7280" />
             <Text className="text-gray-500 text-sm flex-1">
-              {property.address}, {property.city}
+              {property.address}
+              {property.quartier ? `, ${property.quartier}` : ""}, {property.city}
             </Text>
           </View>
 

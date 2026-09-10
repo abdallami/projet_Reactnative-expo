@@ -47,7 +47,9 @@ export default function FeaturedCard({ property }: { property: Property }) {
         <View className="flex-row items-center gap-1 mb-3">
           <Ionicons name="location-outline" size={13} color={"#6B7280"} />
           <Text className="text-xs text-gray-500 " numberOfLines={1}>
-            {property.address},{property.city}
+            {property.quartier
+              ? `${property.quartier}, ${property.city}`
+              : `${property.address}, ${property.city}`}
           </Text>
         </View>
         <View className="flex-row items-center justify-between">

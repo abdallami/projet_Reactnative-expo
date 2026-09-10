@@ -1,4 +1,5 @@
 import { useSupabase } from "@/hooks/useSupabase";
+import { formatPriceInWords } from "@/lib/utils";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import * as Location from "expo-location";
@@ -46,6 +47,7 @@ interface FormState {
   areaSqft: string;
   address: string;
   city: string;
+  quartier: string;
   latitude: string;
   longitude: string;
   isFeatured: boolean;
@@ -63,6 +65,7 @@ const EMPTY_FORM: FormState = {
   areaSqft: "",
   address: "",
   city: "",
+  quartier: "",
   latitude: "",
   longitude: "",
   isFeatured: false,
@@ -184,6 +187,7 @@ export default function EditPropertyScreen() {
         areaSqft: data.area_sqft != null ? String(data.area_sqft) : "",
         address: data.address ?? "",
         city: data.city ?? "",
+        quartier: data.quartier ?? "",
         latitude: data.latitude != null ? String(data.latitude) : "",
         longitude: data.longitude != null ? String(data.longitude) : "",
         isFeatured: !!data.is_featured,
@@ -322,11 +326,11 @@ export default function EditPropertyScreen() {
 
     const priceNum = Number(form.price);
     if (isNaN(priceNum) || priceNum < MIN_PRICE)
-      return Alert.alert("Validation", "Le prix doit être supérieur à 0 €.");
+      return Alert.alert("Validation", "Le prix doit être supérieur à 0 FCFA.");
     if (priceNum > MAX_PRICE)
       return Alert.alert(
         "Validation",
-        `Le prix ne peut pas dépasser ${MAX_PRICE.toLocaleString("fr-FR")} €.`,
+        `Le prix ne peut pas dépasser ${MAX_PRICE.toLocaleString("fr-FR")} FCFA.`,
       );
 
     if (!form.address.trim())
@@ -351,6 +355,7 @@ export default function EditPropertyScreen() {
           area_sqft: form.areaSqft ? Number(form.areaSqft) : null,
           address: form.address.trim(),
           city: form.city.trim(),
+          quartier: form.quartier.trim() || null,
           latitude: form.latitude ? Number(form.latitude) : null,
           longitude: form.longitude ? Number(form.longitude) : null,
           images: form.images,
@@ -492,17 +497,23 @@ export default function EditPropertyScreen() {
           </View>
 
           <View className={sectionClass}>
-            <Text className={labelClass}>Prix (€)</Text>
+            <Text className={labelClass}>Prix (FCFA)</Text>
             <TextInput
               className={inputClass}
-              placeholder="ex. 250000"
+              placeholder="ex. 25000000"
               placeholderTextColor="#9CA3AF"
               value={form.price}
-              onChangeText={(v) => updateForm({ price: v })}
+              onChangeText={(v) => updateForm({ price: v.replace(/\D/g, "") })}
               keyboardType="numeric"
             />
+            {form.price && Number(form.price) > 0 ? (
+              <Text className="text-xs text-blue-600 mt-1.5 ml-1 capitalize">
+                {formatPriceInWords(Number(form.price))}
+              </Text>
+            ) : null}
             <Text className="text-xs text-gray-400 mt-1.5 ml-1">
-              Fourchette valide : 1 € – {MAX_PRICE.toLocaleString("fr-FR")} €
+              Fourchette valide : 1 FCFA – {MAX_PRICE.toLocaleString("fr-FR")}{" "}
+              FCFA
             </Text>
           </View>
 
@@ -571,10 +582,24 @@ export default function EditPropertyScreen() {
             <Text className={labelClass}>Ville</Text>
             <TextInput
               className={inputClass}
-              placeholder="ex. Paris"
+              placeholder="ex. Dakar"
               placeholderTextColor="#9CA3AF"
               value={form.city}
               onChangeText={(v) => updateForm({ city: v })}
+            />
+          </View>
+
+          <View className={sectionClass}>
+            <Text className={labelClass}>
+              Quartier{" "}
+              <Text className="text-gray-400 font-normal">(optionnel)</Text>
+            </Text>
+            <TextInput
+              className={inputClass}
+              placeholder="ex. Almadies, Cocody, Yopougon..."
+              placeholderTextColor="#9CA3AF"
+              value={form.quartier}
+              onChangeText={(v) => updateForm({ quartier: v })}
             />
           </View>
 
