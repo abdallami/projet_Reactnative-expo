@@ -1,3 +1,4 @@
+import ReportModal from "@/components/ReportModal";
 import { useSavedProperty } from "@/hooks/useSavedProperty";
 import { useSupabase } from "@/hooks/useSupabase";
 import {
@@ -38,6 +39,7 @@ export default function PropertyDetailScreen() {
   const [loading, setLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
   const [expanded, setExpanded] = useState(false);
+  const [reportVisible, setReportVisible] = useState(false);
   const [imageViewerVisible, setImageViewerVisible] = useState(false);
   const { isSaved, saveLoading, toggleSave } = useSavedProperty(id ?? "");
   const authSupabase = useSupabase();
@@ -441,6 +443,19 @@ export default function PropertyDetailScreen() {
             </Text>
           </TouchableOpacity>
 
+          {/* Report link — hidden for owner */}
+          {property.owner_clerk_id !== userId && (
+            <TouchableOpacity
+              onPress={() => setReportVisible(true)}
+              className="flex-row items-center justify-center gap-1.5 mb-4"
+            >
+              <Ionicons name="flag-outline" size={14} color="#9CA3AF" />
+              <Text className="text-gray-400 text-sm underline">
+                Signaler cette annonce
+              </Text>
+            </TouchableOpacity>
+          )}
+
           {/* Admin Actions */}
           {isAdmin && (
             <View className="gap-3">
@@ -479,6 +494,13 @@ export default function PropertyDetailScreen() {
           )}
         </View>
       </ScrollView>
+
+      {/* Report Modal */}
+      <ReportModal
+        visible={reportVisible}
+        onClose={() => setReportVisible(false)}
+        propertyId={property.id}
+      />
 
       {/* Image Viewer */}
       <Modal
