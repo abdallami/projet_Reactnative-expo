@@ -306,6 +306,70 @@ export default function PropertyDetailScreen() {
             />
           </View>
 
+          {/* Caution & charges (location uniquement) */}
+          {property.transaction_type === "rent" &&
+            (property.deposit_months || property.monthly_charges) && (
+              <View className="flex-row gap-3 mb-5">
+                {property.deposit_months ? (
+                  <View className="flex-1 bg-amber-50 border border-amber-100 rounded-2xl p-4">
+                    <Text className="text-amber-700 text-xs font-semibold mb-1">
+                      Caution
+                    </Text>
+                    <Text className="text-amber-900 font-bold text-base">
+                      {property.deposit_months} mois
+                    </Text>
+                  </View>
+                ) : null}
+                {property.monthly_charges ? (
+                  <View className="flex-1 bg-amber-50 border border-amber-100 rounded-2xl p-4">
+                    <Text className="text-amber-700 text-xs font-semibold mb-1">
+                      Charges / mois
+                    </Text>
+                    <Text className="text-amber-900 font-bold text-base">
+                      {formatPrice(property.monthly_charges)}
+                    </Text>
+                  </View>
+                ) : null}
+              </View>
+            )}
+
+          {/* Équipements */}
+          {(property.is_furnished ||
+            property.has_generator ||
+            property.has_water ||
+            property.has_internet ||
+            property.has_guardian ||
+            property.is_gated) && (
+            <View className="mb-5">
+              <Text className="text-base font-bold text-gray-900 mb-2">
+                Équipements & sécurité
+              </Text>
+              <View className="flex-row flex-wrap gap-2">
+                {property.is_furnished && (
+                  <AmenityChip icon="bed-outline" label="Meublé" />
+                )}
+                {property.has_generator && (
+                  <AmenityChip icon="flash-outline" label="Groupe électrogène" />
+                )}
+                {property.has_water && (
+                  <AmenityChip icon="water-outline" label="Eau courante" />
+                )}
+                {property.has_internet && (
+                  <AmenityChip icon="wifi-outline" label="Internet / Fibre" />
+                )}
+                {property.has_guardian && (
+                  <AmenityChip icon="shield-outline" label="Gardien 24h" />
+                )}
+                {property.is_gated && (
+                  <AmenityChip
+                    icon="lock-closed-outline"
+                    label="Résidence sécurisée"
+                  />
+                )}
+              </View>
+            </View>
+          )}
+
           {/* Description */}
           <Text className="text-base font-bold text-gray-900 mb-2">
             Description
@@ -476,6 +540,21 @@ function SpecItem({
       <Ionicons name={icon} size={20} color="#2563EB" />
       <Text className="text-gray-900 font-bold text-sm">{value}</Text>
       <Text className="text-gray-400 text-xs">{label}</Text>
+    </View>
+  );
+}
+
+function AmenityChip({
+  icon,
+  label,
+}: {
+  icon: keyof typeof Ionicons.glyphMap;
+  label: string;
+}) {
+  return (
+    <View className="flex-row items-center gap-1.5 bg-blue-50 border border-blue-100 px-3 py-2 rounded-full">
+      <Ionicons name={icon} size={14} color="#2563EB" />
+      <Text className="text-blue-700 text-xs font-semibold">{label}</Text>
     </View>
   );
 }

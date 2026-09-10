@@ -58,6 +58,14 @@ interface FormState {
   isFeatured: boolean;
   images: string[];
   localImages: string[];
+  isFurnished: boolean;
+  depositMonths: string;
+  monthlyCharges: string;
+  hasGenerator: boolean;
+  hasWater: boolean;
+  hasInternet: boolean;
+  hasGuardian: boolean;
+  isGated: boolean;
 }
 
 const INITIAL_FORM: FormState = {
@@ -77,6 +85,14 @@ const INITIAL_FORM: FormState = {
   isFeatured: false,
   images: [],
   localImages: [],
+  isFurnished: false,
+  depositMonths: "",
+  monthlyCharges: "",
+  hasGenerator: false,
+  hasWater: false,
+  hasInternet: false,
+  hasGuardian: false,
+  isGated: false,
 };
 
 function Counter({
@@ -323,6 +339,7 @@ export default function CreatePropertyScreen() {
     setSubmitting(true);
 
     try {
+      const isRent = form.transactionType === "rent";
       const { error } = await authSupabase.from("properties").insert({
         title: form.title.trim(),
         description: form.description.trim(),
@@ -342,6 +359,16 @@ export default function CreatePropertyScreen() {
         is_sold: false,
         owner_clerk_id: user?.id ?? null,
         owner_whatsapp: whatsappNumber.trim(),
+        is_furnished: form.isFurnished,
+        deposit_months:
+          isRent && form.depositMonths ? Number(form.depositMonths) : null,
+        monthly_charges:
+          isRent && form.monthlyCharges ? Number(form.monthlyCharges) : null,
+        has_generator: form.hasGenerator,
+        has_water: form.hasWater,
+        has_internet: form.hasInternet,
+        has_guardian: form.hasGuardian,
+        is_gated: form.isGated,
       });
 
       if (error) {
@@ -652,6 +679,77 @@ export default function CreatePropertyScreen() {
                   keyboardType="numeric"
                 />
               </View>
+            </View>
+          </View>
+
+          {/* Caution & charges (location uniquement) */}
+          {form.transactionType === "rent" && (
+            <View className={sectionClass}>
+              <Text className={labelClass}>Caution et charges</Text>
+              <View className="flex-row gap-3">
+                <View className="flex-1">
+                  <TextInput
+                    className={inputClass}
+                    placeholder="Caution (mois)"
+                    placeholderTextColor="#9CA3AF"
+                    value={form.depositMonths}
+                    onChangeText={(v) =>
+                      updateForm({ depositMonths: v.replace(/\D/g, "") })
+                    }
+                    keyboardType="numeric"
+                  />
+                </View>
+                <View className="flex-1">
+                  <TextInput
+                    className={inputClass}
+                    placeholder="Charges/mois (FCFA)"
+                    placeholderTextColor="#9CA3AF"
+                    value={form.monthlyCharges}
+                    onChangeText={(v) =>
+                      updateForm({ monthlyCharges: v.replace(/\D/g, "") })
+                    }
+                    keyboardType="numeric"
+                  />
+                </View>
+              </View>
+            </View>
+          )}
+
+          {/* Équipements & sécurité */}
+          <View className={sectionClass}>
+            <Text className={labelClass}>Équipements & sécurité</Text>
+            <View className="gap-3">
+              <Toggle
+                label="Meublé"
+                value={form.isFurnished}
+                onChange={(v) => updateForm({ isFurnished: v })}
+              />
+              <Toggle
+                label="Groupe électrogène"
+                value={form.hasGenerator}
+                onChange={(v) => updateForm({ hasGenerator: v })}
+              />
+              <Toggle
+                label="Eau courante"
+                value={form.hasWater}
+                onChange={(v) => updateForm({ hasWater: v })}
+              />
+              <Toggle
+                label="Internet / Fibre"
+                value={form.hasInternet}
+                onChange={(v) => updateForm({ hasInternet: v })}
+              />
+              <Toggle
+                label="Gardien 24h"
+                value={form.hasGuardian}
+                onChange={(v) => updateForm({ hasGuardian: v })}
+              />
+              <Toggle
+                label="Résidence sécurisée"
+                description="Portail, mur d'enceinte, contrôle d'accès"
+                value={form.isGated}
+                onChange={(v) => updateForm({ isGated: v })}
+              />
             </View>
           </View>
 

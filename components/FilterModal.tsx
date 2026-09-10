@@ -48,11 +48,21 @@ export default function FilterModal({
     bedrooms,
     minPrice,
     maxPrice,
+    isFurnished,
+    hasGenerator,
+    hasInternet,
+    hasGuardian,
+    isGated,
     setType,
     setTransactionType,
     setBedrooms,
     setMinPrice,
     setMaxPrice,
+    setIsFurnished,
+    setHasGenerator,
+    setHasInternet,
+    setHasGuardian,
+    setIsGated,
     resetFilters,
   } = useFilterStore();
 
@@ -220,7 +230,7 @@ export default function FilterModal({
           </View>
 
           {/* Price Presets */}
-          <View className="flex-row flex-wrap gap-2">
+          <View className="flex-row flex-wrap gap-2 mb-6">
             {PRICE_PRESETS.map((p) => {
               const active = minPrice === p.min && maxPrice === p.max;
               return (
@@ -248,6 +258,39 @@ export default function FilterModal({
                 </TouchableOpacity>
               );
             })}
+          </View>
+
+          {/* Équipements */}
+          <Text className="text-base font-bold text-gray-800 mb-3">
+            Équipements & sécurité
+          </Text>
+          <View className="flex-row flex-wrap gap-2">
+            {(
+              [
+                { label: "Meublé", value: isFurnished, set: setIsFurnished },
+                {
+                  label: "Groupe électrogène",
+                  value: hasGenerator,
+                  set: setHasGenerator,
+                },
+                {
+                  label: "Internet / Fibre",
+                  value: hasInternet,
+                  set: setHasInternet,
+                },
+                { label: "Gardien 24h", value: hasGuardian, set: setHasGuardian },
+                { label: "Résidence sécurisée", value: isGated, set: setIsGated },
+              ] as const
+            ).map((f) => (
+              <TouchableOpacity
+                key={f.label}
+                onPress={() => f.set(!f.value)}
+                className={chip(f.value)}
+                style={shadow}
+              >
+                <Text className={chipText(f.value)}>{f.label}</Text>
+              </TouchableOpacity>
+            ))}
           </View>
         </ScrollView>
 

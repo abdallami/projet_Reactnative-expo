@@ -38,12 +38,22 @@ export default function SearchScreen() {
     bedrooms,
     minPrice,
     maxPrice,
+    isFurnished,
+    hasGenerator,
+    hasInternet,
+    hasGuardian,
+    isGated,
     setSearch,
     setType,
     setTransactionType,
     setBedrooms,
     setMinPrice,
     setMaxPrice,
+    setIsFurnished,
+    setHasGenerator,
+    setHasInternet,
+    setHasGuardian,
+    setIsGated,
   } = useFilterStore();
 
   const activeFilterCount = [
@@ -52,6 +62,11 @@ export default function SearchScreen() {
     bedrooms !== null,
     minPrice !== null,
     maxPrice !== null,
+    isFurnished,
+    hasGenerator,
+    hasInternet,
+    hasGuardian,
+    isGated,
   ].filter(Boolean).length;
 
   const fetchResults = useCallback(async () => {
@@ -85,11 +100,30 @@ export default function SearchScreen() {
       query = query.lte("price", maxPrice);
     }
 
+    if (isFurnished) query = query.eq("is_furnished", true);
+    if (hasGenerator) query = query.eq("has_generator", true);
+    if (hasInternet) query = query.eq("has_internet", true);
+    if (hasGuardian) query = query.eq("has_guardian", true);
+    if (isGated) query = query.eq("is_gated", true);
+
     const { data } = await query.order("created_at", { ascending: false });
 
     setResults(data ?? []);
     setLoading(false);
-  }, [supabase, search, type, transactionType, bedrooms, minPrice, maxPrice]);
+  }, [
+    supabase,
+    search,
+    type,
+    transactionType,
+    bedrooms,
+    minPrice,
+    maxPrice,
+    isFurnished,
+    hasGenerator,
+    hasInternet,
+    hasGuardian,
+    isGated,
+  ]);
 
   useEffect(() => {
     fetchResults();
@@ -215,6 +249,33 @@ export default function SearchScreen() {
                 </TouchableOpacity>
               </View>
             )}
+            {(
+              [
+                { active: isFurnished, label: "Meublé", set: setIsFurnished },
+                {
+                  active: hasGenerator,
+                  label: "Générateur",
+                  set: setHasGenerator,
+                },
+                { active: hasInternet, label: "Internet", set: setHasInternet },
+                { active: hasGuardian, label: "Gardien", set: setHasGuardian },
+                { active: isGated, label: "Sécurisée", set: setIsGated },
+              ] as const
+            )
+              .filter((c) => c.active)
+              .map((c) => (
+                <View
+                  key={c.label}
+                  className="flex-row items-center bg-blue-50 border border-blue-200 rounded-full px-3 py-1 gap-1"
+                >
+                  <Text className="text-blue-700 text-xs font-semibold">
+                    {c.label}
+                  </Text>
+                  <TouchableOpacity onPress={() => c.set(false)}>
+                    <Ionicons name="close" size={12} color="#1D4ED8" />
+                  </TouchableOpacity>
+                </View>
+              ))}
           </View>
         )}
       </View>
