@@ -80,12 +80,14 @@ const numberBelow100 = (n: number): string => {
   return str;
 };
 
-const numberBelow1000 = (n: number): string => {
+const numberBelow1000 = (n: number, followedByMille = false): string => {
   if (n < 100) return numberBelow100(n);
   const hundreds = Math.floor(n / 100);
   const rest = n % 100;
   let str = hundreds === 1 ? "cent" : `${UNITS[hundreds]} cent`;
-  if (hundreds > 1 && rest === 0) str += "s"; // deux cents
+  // "cent" prend un "s" quand multiplié et non suivi d'un autre nombre,
+  // sauf devant "mille" (adjectif numéral invariable).
+  if (hundreds > 1 && rest === 0 && !followedByMille) str += "s";
   if (rest > 0) str += ` ${numberBelow100(rest)}`;
   return str;
 };
@@ -111,7 +113,9 @@ const numberToWords = (n: number): string => {
     );
   }
   if (thousands > 0) {
-    parts.push(thousands === 1 ? "mille" : `${numberBelow1000(thousands)} mille`);
+    parts.push(
+      thousands === 1 ? "mille" : `${numberBelow1000(thousands, true)} mille`,
+    );
   }
   if (rest > 0) parts.push(numberBelow1000(rest));
 
